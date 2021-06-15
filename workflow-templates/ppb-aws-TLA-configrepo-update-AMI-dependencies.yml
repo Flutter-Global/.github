@@ -1,0 +1,54 @@
+name: PPB-AWS2.0 Update AMI Dependencies File
+
+# This workflow updates the AMI dependency file located in `dependencies.yml` on a regular basis or when there is a manual trigger.
+# It fetches the AMI Streams from Flutter-Global/ppb-aws-ami-image-versioning
+
+# Before running it, you need to create a `dependencies.yml` file in the root of this repository with the following template
+# ---
+# base_image:
+#   stream: eksamazon-linux-v1.19
+#   type: ami
+
+on:
+#  schedule:
+#    # bi-monthly (time and exact days should be randomised)
+#    - cron: "33 3 5,20 * *"
+  workflow_dispatch: {}
+
+jobs:
+  ami-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+
+      - name: Checkout PPB custom GitHub Actions repo
+        uses: actions/checkout@v2
+        with:
+          repository: Flutter-Global/ppb-actions
+          token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }} #organization level secret with READ permission
+          path: .github/ppb_actions
+
+      - name: Checkout cloud ops AMI image repo
+        uses: actions/checkout@v2
+        with:
+          repository: Flutter-Global/ppb-aws-ami-image-versioning
+          token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }} #organization level secret with READ permissions
+          path: .github/cloud_ops_repo
+
+      - name: Update AMI base image
+        uses: ./.github/ppb_actions/update-dependency
+        with:
+          ami_versions_path: .github/cloud_ops_repo
+
+      - name: Commit the changes to the repo
+        if: ${{ success() }}
+        uses: ./.github/ppb_actions/add-and-commit
+        with:
+          author_name: "svc-aws-automation"
+          author_email: "cloud.automation@paddypowerbetfair.com"
+          message: "Dependencies auto-updated by the update-dependencies-ami workflow"
+          add: "dependencies.yml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
