@@ -1,5 +1,6 @@
 {
   "name": "PPB-AWS2.0 CI Build and Dispatch Feature Branch",
   "description": "This workflow builds a TLA Application Code from a Feature Branch and triggers a repository-dispatch event in the TLA Config Repository.",
-  "iconName": "flutter"
+  "iconName": "flutter",
+  "categories": ["CloudAutomation", "CICD"]
 }

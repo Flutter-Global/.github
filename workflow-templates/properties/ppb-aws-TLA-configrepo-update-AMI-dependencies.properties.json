@@ -1,5 +1,6 @@
 {
   "name": "PPB-AWS2.0 Update AMI-based Dependencies File",
   "description": "This workflow updates the AMI dependency file on a regular basis or when there is a manual trigger.",
-  "iconName": "flutter"
+  "iconName": "flutter",
+  "categories": ["CloudAutomation", "CICD"]
 }
