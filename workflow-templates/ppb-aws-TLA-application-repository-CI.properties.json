@@ -1,0 +1,5 @@
+{
+  "name": "PPB-AWS2.0 CI Build and Dispatch",
+  "description": "This workflow builds a TLA Application Code and triggers a repository-dispatch event in the TLA Config Repository.",
+  "iconName": "flutter"
+}

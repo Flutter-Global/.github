@@ -1,0 +1,43 @@
+name: PPB-AWS2.0 Update Dependencies File
+
+# This workflow template illustrates the repository-dispatch event digestion that comes from the
+# <tla-name>-service repository hosting the TLA Application code according to the AWS 2.0 CI/CD Framework Design.
+# https://confluence.app.betfair/pages/viewpage.action?pageId=262760886#AWS2.0CI/CDFrameworkDesign-ContinuousIntegration
+# As a result, a "dependencies.yml" file will be created, which represents an input for the CDK Application hosted in this repo.
+
+on:
+  repository_dispatch:
+    types: [dependency-autoupdate]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+
+      - name: Checkout PPB custom GitHub Actions repo
+        uses: actions/checkout@v2
+        with:
+          repository: Flutter-Global/ppb-actions
+          token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }}
+          path: .github/actions
+
+      - name: Update main container dependency
+        if: ${{ github.event.client_payload.github.repository == 'Flutter-Global/<tla-name>-service' }}
+        uses: ./.github/actions/update-dependency
+        with:
+          dependency_name: main_container
+          dependency_json: ${{ toJson(github.event.client_payload.dependency) }}
+
+      - name: Commit the changes to the repo
+        if: ${{ success() }}
+        uses: ./.github/actions/add-and-commit
+        with:
+          author_name: "${{ github.event.client_payload.github.event.head_commit.author.name }}"
+          author_email: "${{ github.event.client_payload.github.event.head_commit.author.email }}"
+          message: "Dependencies auto-updated by ${{ github.event.client_payload.github.repository }}: ${{ github.event.client_payload.github.event.head_commit.message }}"
+          add: "dependencies.yml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

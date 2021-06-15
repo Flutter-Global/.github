@@ -1,0 +1,57 @@
+name: PPB-AWS2.0 CI Build and Dispatch Feature Branch
+
+# This workflow template illustrates the build of a TLA Docker image that is developed in a Feature Branch. Then there is a trigger of a
+# repository-dispatch event in the TLA Config repository (<tla-name>-configrepo-aws-ppb).
+# Feature Branch Support Documentation: https://confluence.app.betfair/display/AWSandPPB/CDK+Feature+Branch+Pipelines
+# You should be able to easily accomodate the build process with any technology you may need. E.g. maven, npm, etc
+
+on:
+  push:
+    branches:
+      - feature-**
+
+env:
+  IMAGE_NAME: tauta-webserver
+  DISPATCH_TO: Flutter-Global/<tla-name>-configrepo-aws-ppb
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    outputs:
+      image_id: ${{ steps.push_image.outputs.image_id }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build . --file Dockerfile --tag $IMAGE_NAME
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        id: push_image
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=1.0.${{github.run_number}}-${GITHUB_REF##*/}
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+          echo "::set-output name=image_id::$IMAGE_ID"
+          echo "::set-output name=image_version::$VERSION"
+          echo "::set-output name=feature-branch::${GITHUB_REF##*/}"
+
+      # The repository-dispatch event also contains the name of the Feature Branch
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }}
+          repository: $DISPATCH_TO
+          event-type: dependency-autoupdate-feature-branch
+          client-payload: '{"dependency": {"type": "container_image", "image_id": "${{ steps.push_image.outputs.image_id }}", "image_version": "${{ steps.push_image.outputs.image_version }}"}, "feature-branch": "${{ steps.push_image.outputs.feature-branch }}", "github": ${{ toJson(github) }}}'
+

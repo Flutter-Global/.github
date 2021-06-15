@@ -1,0 +1,55 @@
+name: PPB-AWS2.0 CI Build and Dispatch
+
+# This workflow template illustrates the build of a TLA Docker image and the trigger of a
+# repository-dispatch event in the TLA Config repository (<tla-name>-configrepo-aws-ppb) according to the AWS 2.0 CI/CD Framework Design.
+# https://confluence.app.betfair/pages/viewpage.action?pageId=262760886#AWS2.0CI/CDFrameworkDesign-ContinuousIntegration
+# You should be able to easily accomodate the build process with any technology you may need. E.g. maven, npm, etc
+
+on:
+  push:
+    branches:
+      - $default-branch
+
+env:
+  IMAGE_NAME: <replace-with-image-name>
+  VERSION: 1.0.${{github.run_number}}
+  DISPATCH_TO: Flutter-Global/<tla-name>-configrepo-aws-ppb
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    outputs:
+      image_id: ${{ steps.push_image.outputs.image_id }}
+      image_version: ${{ steps.push_image.outputs.image_version }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build . --file Dockerfile --tag $IMAGE_NAME
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        id: push_image
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+          echo "::set-output name=image_id::$IMAGE_ID"
+          echo "::set-output name=image_version::$VERSION"
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }}
+          repository: $DISPATCH_TO
+          event-type: dependency-autoupdate
+          client-payload: '{"dependency": {"type": "container_image", "image_id": "${{ steps.push_image.outputs.image_id }}", "image_version": "${{ steps.push_image.outputs.image_version }}"}, "github": ${{ toJson(github) }}}'

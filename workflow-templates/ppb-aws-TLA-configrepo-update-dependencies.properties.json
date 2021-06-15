@@ -1,0 +1,5 @@
+{
+  "name": "PPB-AWS2.0 Update Dependencies File",
+  "description": "This workflow digests the repository-dispatch event coming from the TLA Application Code Repository.",
+  "iconName": "flutter"
+}
