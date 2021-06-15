@@ -1,5 +1,5 @@
 {
-  "name": "PPB-AWS2.0 Update Dependencies File from Feature Branch - different branch",
+  "name": "PPB-AWS2.0 Update Docker Dependencies File from Feature Branch - different branch",
   "description": "This workflow digests the feature-branch repository-dispatch event coming from the TLA Application Code Repository. It implements the Option 2 in Feature Branch Documentation https://confluence.app.betfair/display/AWSandPPB/CDK+Feature+Branch+Pipelines",
   "iconName": "flutter",
   "categories": ["CloudAutomation", "CICD"]

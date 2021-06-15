@@ -1,11 +1,11 @@
-name: PPB-AWS2.0 Update Dependencies File from Feature Branch
+name: PPB-AWS2.0 Update Docker Dependencies File from Feature Branch
 
 # This workflow template illustrates the repository-dispatch event digestion that comes from a feature-branch in the
 # <tla-name>-service repository hosting the TLA Application.
 # Feature Branch Support Documentation: https://confluence.app.betfair/display/AWSandPPB/CDK+Feature+Branch+Pipelines
-# This workflow implements Option 2 in the above documentation!
+# This workflow implements Option 1 in the above documentation!
 
-# As a result, a "dependencies.yml" file will be created in an orphaned branch, which will represent the input for the Feature Branch CDK pipeline hosted in this repo.
+# As a result, a "dependencies-<feature-branch>.yml" file will be created, which represents an input for the Feature Branch CDK pipeline hosted in this repo.
 
 on:
   repository_dispatch:
@@ -26,44 +26,21 @@ jobs:
           token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }}
           path: .github/actions
 
-      - name: Create feature branch if not exists
-        id: github-pages-exists
-        run: |
-          FEATURE_BRANCH=${{ github.event.client_payload.feature-branch }}
-          existed_in_remote=$(git ls-remote --heads origin $FEATURE_BRANCH)
-          
-          if [[ -z ${existed_in_remote} ]]; then
-            echo "Creating $FEATURE_BRANCH branch"
-            git config --global user.email "${{ github.event.client_payload.github.event.head_commit.author.email }}"
-            git config --global user.name "${{ github.event.client_payload.github.event.head_commit.author.name }}"
-            git checkout --orphan $FEATURE_BRANCH
-            git reset --hard
-            git commit --allow-empty -m "Initializing $FEATURE_BRANCH branch"
-            git push origin $FEATURE_BRANCH
-            git branch --set-upstream-to=origin/$FEATURE_BRANCH $FEATURE_BRANCH
-            echo "Created $FEATURE_BRANCH branch"
-          else
-            echo "Branch $FEATURE_BRANCH already exists"
-          fi
-          git fetch
-          git checkout $FEATURE_BRANCH
-        shell: bash
-        
       - name: Update main container dependency
         if: ${{ github.event.client_payload.github.repository == 'Flutter-Global/<tla-name>-service' }}
         uses: ./.github/actions/update-dependency
         with:
+          dependency_manifest_path: dependencies-${{ github.event.client_payload.feature-branch }}.yml
           dependency_name: main_container
           dependency_json: ${{ toJson(github.event.client_payload.dependency) }}
 
       - name: Commit the changes to the repo
         if: ${{ success() }}
-        uses: EndBug/add-and-commit@v7.2.0
+        uses: ./.github/actions/add-and-commit
         with:
           author_name: "${{ github.event.client_payload.github.event.head_commit.author.name }}"
           author_email: "${{ github.event.client_payload.github.event.head_commit.author.email }}"
           message: "Dependencies auto-updated by ${{ github.event.client_payload.github.repository }}: ${{ github.event.client_payload.github.event.head_commit.message }}"
-          branch: "${{ github.event.client_payload.feature-branch }}"
-          add: "dependencies.yml"
+          add: "dependencies-${{ github.event.client_payload.feature-branch }}.yml"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
