@@ -11,7 +11,7 @@ on:
       - feature-**
 
 env:
-  IMAGE_NAME: tauta-webserver
+  IMAGE_NAME: <replace-with-image-name>
   DISPATCH_TO: Flutter-Global/<tla-name>-configrepo-aws-ppb
 
 jobs:
