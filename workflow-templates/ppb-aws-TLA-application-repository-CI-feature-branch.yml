@@ -51,7 +51,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.SVC_AWS_AUTOMATION_RO_ACCESS }}
-          repository: $DISPATCH_TO
+          repository: ${{ env.DISPATCH_TO }}
           event-type: dependency-autoupdate-feature-branch
           client-payload: '{"dependency": {"type": "container_image", "image_id": "${{ steps.push_image.outputs.image_id }}", "image_version": "${{ steps.push_image.outputs.image_version }}"}, "feature-branch": "${{ steps.push_image.outputs.feature-branch }}", "github": ${{ toJson(github) }}}'
 
