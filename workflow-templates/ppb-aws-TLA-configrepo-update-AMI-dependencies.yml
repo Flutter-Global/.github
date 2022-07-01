@@ -10,9 +10,9 @@ name: PPB-AWS2.0 Update AMI Dependencies File
 #   type: ami
 
 on:
-#  schedule:
-#    # bi-monthly (time and exact days should be randomised)
-#    - cron: "33 3 5,20 * *"
+  schedule:
+    # every Tuesday at 8 am (AMI Image Builder runs every Tuesday at 4am)
+    - cron: "0 8 * * TUE"
   workflow_dispatch: {}
 
 jobs:
