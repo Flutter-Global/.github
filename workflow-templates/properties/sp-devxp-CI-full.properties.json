@@ -1,0 +1,7 @@
+{
+    "name": "Shared Platforms - Developer Experience CI full",
+    "description": "This workflow is part of the developer experience initiative, for more information check https://github.com/Flutter-Global/devxp-ci-workflows",
+    "iconName": "flutter",
+    "categories": ["Continuous integration", "Testing", "Java", "Scala", "Maven"]
+  }
+  
