@@ -13,7 +13,7 @@ jobs:
     uses: Flutter-Global/devxp-ci-workflows/.github/workflows/flutter-ci-full.yml@v1
     with:
       # for more information about the inputs for this workflow, please 
-      # refer to the https://github.com/Flutter-Global/devxp-ci-workflows/blob/main/docs/workflows/flutter-ci-full.md
+      # refer to the our reusable workflows documetation on the gbp website
       java_version: "11" # Java version to use for the build
       maven_version: "3.8.2" # Maven version to use for the build
     secrets:

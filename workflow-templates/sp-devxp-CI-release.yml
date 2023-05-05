@@ -2,7 +2,7 @@
 # then publishes release artifacts to GitHub. 
 # CI Release workflow will automatically generate release notes based on the commit messages.
 # To configure the release notes, please add the file .github/release.yml 
-# using the template https://github.com/Flutter-Global/devxp-ci-workflows/blob/main/.github/release.yml
+# using the template located at our reusable workflows repository under /.github/release.yml
 name: SP DevXP CI Release
 
 # DO NOT MODIFY THESE TRIGGERS
@@ -17,7 +17,7 @@ jobs:
     uses: Flutter-Global/devxp-ci-workflows/.github/workflows/flutter-ci-release.yml@v1
     with: 
       # for more information about the inputs for this workflow, please 
-      # refer to the https://github.com/Flutter-Global/devxp-ci-workflows/blob/main/docs/workflows/flutter-ci-release.md
+      # refer to the our reusable workflows documetation on the gbp website
       java_version: "11" # Java version to use for the build
       maven_version: "3.8.2" # Maven version to use for the build
     secrets:
