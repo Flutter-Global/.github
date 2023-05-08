@@ -1,0 +1,21 @@
+# This workflow is used during feature development. It runs unit tests and code coverage.
+name: SP DevXP CI Quick
+
+# DO NOT MODIFY THESE TRIGGERS
+# These triggers are configured accordingly to the Developer Experience branching strategy initiative
+on:
+  push:
+    branches:
+      - "**/feature/**"
+
+jobs:
+  unit-tests:
+    uses: Flutter-Global/devxp-ci-workflows/.github/workflows/flutter-ci-quick.yml@v1
+    with:
+      # for more information about the inputs for this workflow, please 
+      # refer to the our reusable workflows documetation on the gbp website
+      java_version: "11" # Java version to use for the build
+      maven_version: "3.8.2" # Maven version to use for the build
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DATADOG_API_KEY: ${{ secrets.SP_DATADOG_API_KEY }}

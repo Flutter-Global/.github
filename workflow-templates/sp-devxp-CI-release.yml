@@ -1,0 +1,25 @@
+# This workflow is using during release. It runs unit tests, code coverage, component tests and 
+# then publishes release artifacts to GitHub. 
+# CI Release workflow will automatically generate release notes based on the commit messages.
+# To configure the release notes, please add the file .github/release.yml 
+# using the template located at our reusable workflows repository under /.github/release.yml
+name: SP DevXP CI Release
+
+# DO NOT MODIFY THESE TRIGGERS
+# These triggers are configured accordingly to the Developer Experience branching strategy initiative
+on:
+  push:
+    tags:
+      - v** # This is the default tag format for release branches
+
+jobs:
+  release:
+    uses: Flutter-Global/devxp-ci-workflows/.github/workflows/flutter-ci-release.yml@v1
+    with: 
+      # for more information about the inputs for this workflow, please 
+      # refer to the our reusable workflows documetation on the gbp website
+      java_version: "11" # Java version to use for the build
+      maven_version: "3.8.2" # Maven version to use for the build
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DATADOG_API_KEY: ${{ secrets.SP_DATADOG_API_KEY }}
