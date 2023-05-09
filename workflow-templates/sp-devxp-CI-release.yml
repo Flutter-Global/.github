@@ -21,5 +21,4 @@ jobs:
       java_version: "11" # Java version to use for the build
       maven_version: "3.8.2" # Maven version to use for the build
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DATADOG_API_KEY: ${{ secrets.SP_DATADOG_API_KEY }}
